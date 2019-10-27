@@ -22,39 +22,47 @@ void destroy(GtkWidget window, gpointer data) {
 }
 
 // show answer callback
-void show_answer(GtkWidget question_event_box, GtkWidget ** main_screens_array) {
+void show_answer(GtkWidget question_event_box, gpointer data) {
 
-	// hide all the widgets while the switch takes place
-	gtk_widget_hide(main_screens_array[MAIN_SCREEN]);
+	// declare external gtk container widgets
+	extern GtkWidget * main_screen_vbox, * answer_vbox, * question_vbox;
 
-	// remove the question vbox from the main screen vbox
-	gtk_container_remove(GTK_CONTAINER (main_screens_array[MAIN_SCREEN]), main_screens_array[QUESTION_SCREEN]);
+	// reference to question vbox
+	g_object_ref(question_vbox);
 
-	// pack in the answer screen
-	gtk_box_pack_start(GTK_BOX (main_screens_array[MAIN_SCREEN]), main_screens_array[ANSWER_SCREEN], TRUE, TRUE, 5);
+	// hide the window while modifying
+	gtk_widget_hide(main_screen_vbox);
 
-	// show the new widgets
-	gtk_widget_show_all(main_screens_array[MAIN_SCREEN]);
+	// remove old child
+	gtk_container_remove(GTK_CONTAINER (main_screen_vbox), question_vbox);
+
+	// add the answer box
+	gtk_box_pack_start(GTK_BOX (main_screen_vbox), answer_vbox, TRUE, TRUE, 5);
+
+	// show all the widgets again
+	gtk_widget_show_all(main_screen_vbox);
 
 };
 
 // next question callback
-void next_question(GtkWidget button, GtkWidget ** main_screens_array) {
+void next_question(GtkWidget button, gboolean * correct) {
 
-	// record stats based on which button was pressed
+	// declare external gtk container widgets
+	extern GtkWidget * main_screen_vbox, * answer_vbox, * question_vbox;
 
-	// hide all the widgets while the switch takes place
-	gtk_widget_hide(main_screens_array[MAIN_SCREEN]);
+	// reference to answer vbox
+	g_object_ref(answer_vbox);
 
-	// get new question and insert its information into quetsion and answer boxes
+	// hide the window while modifying
+	gtk_widget_hide(main_screen_vbox);
 
-	// remove the answer vbox from main screen vbox
-	gtk_container_remove(GTK_CONTAINER (main_screens_array[MAIN_SCREEN]), main_screens_array[ANSWER_SCREEN]);
+	// remove old child
+	gtk_container_remove(GTK_CONTAINER (main_screen_vbox), answer_vbox);
 
-	// pack in the question screen
-	gtk_box_pack_start(GTK_BOX (main_screens_array[MAIN_SCREEN]), main_screens_array[QUESTION_SCREEN], TRUE, TRUE, 5);
+	// add the question box
+	gtk_box_pack_start(GTK_BOX (main_screen_vbox), question_vbox, TRUE, TRUE, 5);
 
-	// show the widgets
-	gtk_widget_show_all(main_screens_array[MAIN_SCREEN]);
+	// show all the widgets again
+	gtk_widget_show_all(main_screen_vbox);
 
 };
