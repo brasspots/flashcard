@@ -11,6 +11,9 @@
 // include sdtio to talk to the terminal for error/debugging info
 #include <stdio.h>
 
+// include stdlib for malloc and free
+#include <stdlib.h>
+
 // include gtk callbacks for flash card
 #include "callbacks.h"
 
@@ -18,10 +21,13 @@
 int main(int argc, char ** argv){
 
 	// define gtk container widgets
-	GtkWidget * window, * total_vbox, * header_buttons_hbox, * main_screen_vbox, * question_vbox, * answer_vbox, * answer_buttons_hbox, * add_question_vbox;
+	GtkWidget * window, * total_vbox, * header_buttons_hbox, * main_screen_vbox, * question_vbox, * answer_vbox, * answer_buttons_hbox, * add_question_vbox, * question_event_box;
 
 	// define gtk button and label widgets
 	GtkWidget * menu_button, * correct_button, * incorrect_button, * filters_button, * tags_label, * question_label, * answer_label;
+
+	// declare the main screens array to be passed to switching functions
+	GtkWidget ** main_screens_array;
 
 	// initialise gtk
 	gtk_init(&argc, &argv);
@@ -41,6 +47,7 @@ int main(int argc, char ** argv){
 	total_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
 	header_buttons_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 	question_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+	question_event_box = gtk_event_box_new();
 	answer_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
 	answer_buttons_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 	add_question_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
@@ -69,13 +76,16 @@ int main(int argc, char ** argv){
 	// add the total vbox to the window
 	gtk_container_add(GTK_CONTAINER (window), total_vbox);
 
+	// add the question label to the question event box
+	gtk_container_add(GTK_CONTAINER (question_event_box), question_label);
+
 	// contruct the question vbox to go in main screen vbox
 	gtk_box_pack_start(GTK_BOX (question_vbox), tags_label, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX (question_vbox), question_label, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX (question_vbox), question_event_box, TRUE, TRUE, 5);
 
-	// construct the answer buttons hbox to go in answer vbox
-	gtk_box_pack_start(GTK_BOX (answer_buttons_hbox), correct_button, TRUE, TRUE, 5);
-	gtk_box_pack_start(GTK_BOX (answer_buttons_hbox), incorrect_button, TRUE, TRUE, 5); 
+	// construct the answer buttons hbox to go in answer vbox (do not grow them out into spare space)
+	gtk_box_pack_end(GTK_BOX (answer_buttons_hbox), correct_button, TRUE, FALSE, 5);
+	gtk_box_pack_end(GTK_BOX (answer_buttons_hbox), incorrect_button, TRUE, FALSE, 5); 
 
 	// construct the answer vbox to go in main screen vbox
 	gtk_box_pack_start(GTK_BOX (answer_vbox), answer_label, TRUE, TRUE, 5);
@@ -84,14 +94,46 @@ int main(int argc, char ** argv){
 	// add the question vbox to the main screen vbox
 	gtk_box_pack_start(GTK_BOX (main_screen_vbox), answer_vbox, TRUE, TRUE, 5);
 
-	// connect the main window destroy callback
+	// define the main screens array
+	main_screens_array = (GtkWidget **) malloc(4 * sizeof(GtkWidget *));
+
+	// check that memory was allocated
+	if (main_screens_array == NULL) {
+
+		// display error
+		fprintf(stderr, "%s: insufficient memory\n", *(argv + 0));
+
+		// exit
+		return -1;
+
+	};
+
+	// allocate widgets to the main screens array
+	main_screens_array[0] = main_screen_vbox;
+	main_screens_array[1] = question_vbox;
+	main_screens_array[2] = answer_vbox;
+	main_screens_array[3] = add_question_vbox;
+
+	// connect the main window destroy callback to destroy
 	g_signal_connect(G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
+
+	// connect the question event box clicked callback to show answer
+	g_signal_connect(G_OBJECT (question_event_box), "button_press_event", G_CALLBACK (show_answer), main_screens_array);
+
+	// connect the correct button clicked callback to next question
+	g_signal_connect(G_OBJECT (correct_button), "clicked", G_CALLBACK (next_question), main_screens_array);
+
+	// connect the incorrect button clicked callback to next question
+	g_signal_connect(G_OBJECT (incorrect_button), "clicked", G_CALLBACK (next_question), main_screens_array);
 
 	// show all the widgets
 	gtk_widget_show_all(window);
 
 	// hand control to gtk
 	gtk_main();
+
+	// free mallocs
+	free(main_screens_array);
 
 	return 0;
 
