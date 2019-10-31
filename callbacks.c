@@ -19,50 +19,43 @@ void destroy(GtkWidget window, gpointer data) {
 	// quit gtk
 	gtk_main_quit();
 
-}
-
-// show answer callback
-void show_answer(GtkWidget question_event_box, gpointer data) {
-
-	// declare external gtk container widgets
-	extern GtkWidget * main_screen_vbox, * answer_vbox, * question_vbox;
-
-	// reference to question vbox
-	g_object_ref(question_vbox);
-
-	// hide the window while modifying
-	gtk_widget_hide(main_screen_vbox);
-
-	// remove old child
-	gtk_container_remove(GTK_CONTAINER (main_screen_vbox), question_vbox);
-
-	// add the answer box
-	gtk_box_pack_start(GTK_BOX (main_screen_vbox), answer_vbox, TRUE, TRUE, 5);
-
-	// show all the widgets again
-	gtk_widget_show_all(main_screen_vbox);
-
 };
 
 // next question callback
-void next_question(GtkWidget button, gboolean * correct) {
+void next_question_correct(GtkWidget button, GtkWidget * question_vbox) {
 
-	// declare external gtk container widgets
-	extern GtkWidget * main_screen_vbox, * answer_vbox, * question_vbox;
+	// do correct stuff
 
-	// reference to answer vbox
-	g_object_ref(answer_vbox);
+	// change the screen
+	change_screen(button, question_vbox);
 
-	// hide the window while modifying
-	gtk_widget_hide(main_screen_vbox);
+};
 
-	// remove old child
-	gtk_container_remove(GTK_CONTAINER (main_screen_vbox), answer_vbox);
+void next_question_incorrect(GtkWidget button, GtkWidget * question_vbox) {
 
-	// add the question box
-	gtk_box_pack_start(GTK_BOX (main_screen_vbox), question_vbox, TRUE, TRUE, 5);
+	// do incorrect stuff
 
-	// show all the widgets again
+	// change the screen
+	change_screen(button, question_vbox);
+
+};
+
+void change_screen(GtkWidget widget, GtkWidget * new_child) {
+
+
+	// acquire current child
+	GtkWidget * current_child = gtk_container_get_children(GTK_CONTAINER (main_screen_vbox))->data;
+
+	// make a reference to the current child so it isn't hit by garbage collection when we remove it
+	g_object_ref(current_child);
+
+	// remove the current child from the main screen vbox
+	gtk_container_remove(GTK_CONTAINER (main_screen_vbox), current_child);
+
+	// add the new child
+	gtk_box_pack_start(GTK_BOX (main_screen_vbox), new_child, TRUE, TRUE, 5);
+
+	// show the new child
 	gtk_widget_show_all(main_screen_vbox);
 
 };
