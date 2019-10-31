@@ -14,17 +14,20 @@
 #ifndef FLASH_CARD_CALLBACKS
 #define FLASH_CARD_CALLBACKS
 
-// define global variables
-GtkWidget * main_screen_vbox, * question_vbox, * answer_vbox, * add_question_vbox;
+// declare global variables
+extern GtkWidget * main_screen_vbox;
 
 // destroy window callback
 void destroy(GtkWidget window, gpointer data);
 
-// change main screen to answer vbox
-void show_answer(GtkWidget question_event_box, gpointer data);
+// change main screen to question vbox with a correct answer
+void next_question_correct(GtkWidget button, GtkWidget * question_vbox);
 
-// change main screen to question box
-void next_question(GtkWidget button, gboolean * correct);
+// change the main screen to question vbox with an incorrect answer
+void next_question_incorrect(GtkWidget button, GtkWidget * question_vbox);
+
+// change the main screen
+void change_screen(GtkWidget widget, GtkWidget * new_child);
 
 // end the guard
 #endif
