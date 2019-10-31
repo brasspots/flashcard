@@ -17,9 +17,6 @@
 // include gtk callbacks for flash card
 #include "callbacks.h"
 
-// define global variables
-GtkWidget * main_screen_vbox;
-
 // main
 int main(int argc, char ** argv){
 
@@ -27,7 +24,7 @@ int main(int argc, char ** argv){
 	GtkWidget * window, * total_vbox, * header_buttons_hbox, * question_event_box, * answer_buttons_hbox;
 
 	// define main gtk container widgets
-	GtkWidget * question_vbox, * answer_vbox, * add_question_vbox;
+	GtkWidget * question_vbox, * answer_vbox, * add_question_vbox, * main_screen_vbox;
 
 	// define gtk button and label widgets
 	GtkWidget * menu_button, * correct_button, * incorrect_button, * filters_button, * tags_label, * question_label, * answer_label;
@@ -95,26 +92,26 @@ int main(int argc, char ** argv){
 	gtk_box_pack_start(GTK_BOX (answer_vbox), answer_buttons_hbox, FALSE, FALSE, 5); // do not grow this container to fill spare space
 
 	// add the question vbox to the main screen vbox
-	gtk_box_pack_start(GTK_BOX (main_screen_vbox), answer_vbox, TRUE, TRUE, 5);
-
-	// assign some names
-	gtk_widget_set_name(answer_vbox, "GtkBox_answer");
-	gtk_widget_set_name(question_vbox, "GtkBox_question");
+	gtk_box_pack_start(GTK_BOX (main_screen_vbox), question_vbox, TRUE, TRUE, 5);
 
 	// connect the main window destroy callback to destroy
 	g_signal_connect(G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
+
+	// define screen change data for screen change callbacks
+	change_screen_data to_question = {main_screen_vbox, question_vbox};
+	change_screen_data to_answer = {main_screen_vbox, answer_vbox};
 
 	// following callbacks are connected swapped for reasons unknown
 	// TODO: why?
 
 	// connect the question event box clicked callback to show answer
-	g_signal_connect_swapped(G_OBJECT (question_event_box), "button_press_event", G_CALLBACK (change_screen), answer_vbox);
+	g_signal_connect_swapped(G_OBJECT (question_event_box), "button_press_event", G_CALLBACK (change_screen), &to_answer);
 
 	// connect the correct button clicked callback to next question
-	g_signal_connect_swapped(G_OBJECT (correct_button), "clicked", G_CALLBACK (next_question_correct), question_vbox);
+	g_signal_connect_swapped(G_OBJECT (correct_button), "clicked", G_CALLBACK (next_question_correct), &to_question);
 
 	// connect the incorrect button clicked callback to next question
-	g_signal_connect_swapped(G_OBJECT (incorrect_button), "clicked", G_CALLBACK (next_question_incorrect), question_vbox);
+	g_signal_connect_swapped(G_OBJECT (incorrect_button), "clicked", G_CALLBACK (next_question_incorrect), &to_question);
 
 	// show all the widgets
 	gtk_widget_show_all(window);
