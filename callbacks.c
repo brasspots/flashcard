@@ -9,53 +9,69 @@
 
 // get gtk
 #include <gtk/gtk.h>
+#include <stdio.h>
 
 // end the guard on gtk
 #endif
 
 // destroy window callback
-void destroy(GtkWidget window, gpointer data) {
+void destroy(GtkWindow * window, gpointer data) {
+
+	// save progress
 
 	// quit gtk
 	gtk_main_quit();
 
 };
 
-// next question callback
-void next_question_correct(GtkWidget button, change_screen_data * data) {
+// record correct answer then get next question callback
+void next_question_correct(GtkButton * button, GtkNotebook * qa_notebook) {
 
 	// do correct stuff
 
-	// change the screen
-	change_screen(button, data);
+	// change the notebook tab
+	gtk_notebook_set_current_page(qa_notebook, 0);
+
+	// select a new question
+	load_new_question(qa_notebook);
 
 };
 
-void next_question_incorrect(GtkWidget button, change_screen_data * data) {
+// record incorrect answer then get next question callback
+void next_question_incorrect(GtkButton * button, GtkNotebook * qa_notebook) {
 
 	// do incorrect stuff
 
-	// change the screen
-	change_screen(button, data);
+	// change the notebook page
+	gtk_notebook_set_current_page(qa_notebook, 0);
+
+	// select a new question
+	load_new_question(qa_notebook);
+};
+
+// skip a question callback
+void skip_current_question(GtkButton * button, GtkNotebook * qa_notebook) {
+
+	// wrapper for load new question
+	load_new_question(qa_notebook);
 
 };
 
-void change_screen(GtkWidget widget, change_screen_data * data) {
+// show the answer callback
+void show_answer(GtkEventBox * button, GdkEventButton * event, GtkNotebook * qa_notebook) {
 
+	// wrapper around gtk notebook set current page
+	gtk_notebook_set_current_page(qa_notebook, 1);
 
-	// acquire current child
-	GtkWidget * current_child = gtk_container_get_children(GTK_CONTAINER (data->main_screen_vbox))->data;
+};
 
-	// make a reference to the current child so it isn't hit by garbage collection when we remove it
-	g_object_ref(current_child);
+// load a new question into the notebook
+void load_new_question(GtkNotebook * qa_notebook) {
 
-	// remove the current child from the main screen vbox
-	gtk_container_remove(GTK_CONTAINER (data->main_screen_vbox), current_child);
+	// select a new question
 
-	// add the new child
-	gtk_box_pack_start(GTK_BOX (data->main_screen_vbox), data->new_child, TRUE, TRUE, 5);
+	// change the question screen
 
-	// show the new child
-	gtk_widget_show_all(data->main_screen_vbox);
+	// change the answer screen
 
 };
