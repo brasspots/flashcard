@@ -14,25 +14,23 @@
 #ifndef FLASH_CARD_CALLBACKS
 #define FLASH_CARD_CALLBACKS
 
-// typedef struct to pass main_screen_vbox and another  widget to callback functions
-typedef struct {
-
-	GtkWidget * main_screen_vbox;
-	GtkWidget * new_child;
-
-} change_screen_data;
-
 // destroy window callback
-void destroy(GtkWidget window, gpointer data);
+void destroy(GtkWindow * window, gpointer data);
 
 // change main screen to question vbox with a correct answer
-void next_question_correct(GtkWidget button, change_screen_data * data);
+void next_question_correct(GtkButton * button, GtkNotebook * qa_notebook);
 
 // change the main screen to question vbox with an incorrect answer
-void next_question_incorrect(GtkWidget button, change_screen_data * data);
+void next_question_incorrect(GtkButton * button, GtkNotebook * qa_notebook);
 
-// change the main screen
-void change_screen(GtkWidget widget, change_screen_data * data);
+// skip the current question callback
+void skip_current_question(GtkButton * button, GtkNotebook * qa_notebook);
+
+// show the answer callback
+void show_answer(GtkEventBox * button, GdkEventButton * event, GtkNotebook * qu_notebook);
+
+// load new question content
+void load_new_question(GtkNotebook * qa_notebook);
 
 // end the guard
 #endif
